@@ -11,11 +11,6 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-   assert(argc == 3);
-
-   cout << compare(argv[1], argv[2]) << endl;
-
-#if 0
    set<string> all_words;
    set<string> allowed_guesses;
    set<string> answers;
@@ -67,5 +62,4 @@ int main(int argc, char *argv[])
 
       words.close();
    }
-#endif
 }
