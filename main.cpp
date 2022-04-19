@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
    (void) argv;
 
    constexpr bool DEBUG_MODE{false};
+   constexpr bool GREEN_CHECK{false};
    constexpr size_t WORD_LENGTH{5};
 
    // Load allowed guesses (and all_words)
@@ -192,21 +193,44 @@ int main(int argc, char *argv[])
             if (! ok_to_mark_unused)
                continue;
 
-#if 0
-            // Check to see if this letter is green in *any* other
-            // position before marking it unused!
-            if (
-                  find(
-                         known_letters.cbegin(),
-                         known_letters.cend(),
-                         c
-                      ) != known_letters.cend()
-               )
+            if constexpr (GREEN_CHECK)
             {
-
-               continue;
+               // I now believe this check to be unneeded, and have
+               // noted that it can leave this list of candidate words
+               // larger than it needs to be.
+               // 
+               // EXAMPLE
+               // -------
+               // If flair is the answer:
+               // 
+               // Round 1: slate --> bggbb
+               // [^est]la[^est][^est]
+               // 
+               // Round 2: blank --> bggbb
+               // [^beknst]la[^beknst][^beknst]
+               // 
+               // Round 3: plaid --> bgggb
+               // [^bdeknpst]lai[^bdeknpst]
+               // 
+               // Round 4: flail --> ggggb
+               // flai[^bdeknpst]
+               // 
+               // After round 4, the word flail is still in the list of possible answers.
+   
+               // Check to see if this letter is green in *any* other
+               // position before marking it unused!
+               if (
+                     find(
+                            known_letters.cbegin(),
+                            known_letters.cend(),
+                            c
+                         ) != known_letters.cend()
+                  )
+               {
+   
+                  continue;
+               }
             }
-#endif
 
             unused_letters.insert(c);
          }
