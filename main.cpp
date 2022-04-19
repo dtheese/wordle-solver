@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
    (void) argc;
    (void) argv;
 
+   constexpr bool DEBUG_MODE{false};
    constexpr size_t WORD_LENGTH{5};
 
    // Load allowed guesses (and all_words)
@@ -234,8 +235,8 @@ int main(int argc, char *argv[])
             search_regex_ss << known_letters[i];
       }
 
-      // Uncomment to debug
-      cout << "regex: " << search_regex_ss.str() << endl;
+      if constexpr (DEBUG_MODE)
+         cout << "regex: " << search_regex_ss.str() << endl;
 
       const regex candidate_regex(search_regex_ss.str());
       set<string> candidate_answers;
@@ -269,13 +270,13 @@ int main(int argc, char *argv[])
          }
       }
 
-      // Uncomment to debug
-      cout << "Letters to be placed: ";
+      if constexpr (DEBUG_MODE)
+         cout << "Letters to be placed: ";
 
       for (char c : all_location_unknown_letters)
       {
-         // Uncomment to debug
-         cout << c;
+         if constexpr (DEBUG_MODE)
+            cout << c;
 
          for (
                 auto iter {candidate_answers.begin()};
@@ -289,13 +290,14 @@ int main(int argc, char *argv[])
          }
       }
 
-      // Uncomment to debug
-      cout << endl << endl;
+      if constexpr (DEBUG_MODE)
+      {
+         cout << endl << endl;
 
-      // Uncomment to debug
-      for (const string &word : candidate_answers)
-         cout << word << endl;
+         for (const string &word : candidate_answers)
+            cout << word << endl;
 
-      cout << endl;
+         cout << endl;
+      }
    }
 }
