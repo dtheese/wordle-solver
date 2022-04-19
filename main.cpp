@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
             continue;
          }
 
-         if (answers.find(guess) == answers.end())
+         if (all_words.find(guess) == answers.end())
             cout << "Not a word!" << endl << endl;
          else
             break;
