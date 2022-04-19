@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
    set<string> allowed_guesses;
    set<string> answers;
 
-   // Load all guesses (and allowed words)
+   // Load possible guesses (and all_words)
    {
       const string allowed_guesses_filename{"wordle-allowed-guesses.txt"};
       ifstream words(allowed_guesses_filename);
@@ -80,6 +80,12 @@ int main(int argc, char *argv[])
    result_ss << "[byg]{" << WORD_LENGTH << "}";
    const regex result_regex(result_ss.str());
 
+   // Set up variables to keep track of what we learn about
+   // the answer's letters their positions.
+   set<char> unused_letters;
+   vector<set<char>> location_unknown_letters(WORD_LENGTH);
+   vector<char> known_letters(WORD_LENGTH, '\0');
+
    // Proceed with the program's main loop
    for (size_t round{0}; round < 6; ++round)
    {
@@ -132,9 +138,6 @@ int main(int argc, char *argv[])
 
       // Build a list of unused letters, location unknown letters,
       // and location known letters
-      set<char> unused_letters;
-      vector<set<char>> location_unknown_letters(WORD_LENGTH);
-      vector<char> known_letters(WORD_LENGTH, '\0');
 
       // Be careful here! If the answer has N instances of a letter
       // and if we make a guess that has more than N instances of that
@@ -188,6 +191,7 @@ int main(int argc, char *argv[])
             if (! ok_to_mark_unused)
                continue;
 
+#if 0
             // Check to see if this letter is green in *any* other
             // position before marking it unused!
             if (
@@ -201,6 +205,7 @@ int main(int argc, char *argv[])
 
                continue;
             }
+#endif
 
             unused_letters.insert(c);
          }
@@ -228,6 +233,9 @@ int main(int argc, char *argv[])
          else
             search_regex_ss << known_letters[i];
       }
+
+      // Uncomment to debug
+      cout << "regex: " << search_regex_ss.str() << endl;
 
       const regex candidate_regex(search_regex_ss.str());
       set<string> candidate_answers;
@@ -261,8 +269,14 @@ int main(int argc, char *argv[])
          }
       }
 
+      // Uncomment to debug
+      cout << "Letters to be placed: ";
+
       for (char c : all_location_unknown_letters)
       {
+         // Uncomment to debug
+         cout << c;
+
          for (
                 auto iter {candidate_answers.begin()};
                 iter != candidate_answers.end();
@@ -275,6 +289,10 @@ int main(int argc, char *argv[])
          }
       }
 
+      // Uncomment to debug
+      cout << endl << endl;
+
+      // Uncomment to debug
       for (const string &word : candidate_answers)
          cout << word << endl;
 
