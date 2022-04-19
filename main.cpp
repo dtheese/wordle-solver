@@ -320,7 +320,6 @@ int main(int argc, char *argv[])
 
          for (const string &word : candidate_answers)
             cout << word << endl;
-
       }
 
       cout << endl;
