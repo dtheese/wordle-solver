@@ -1,6 +1,8 @@
 #include <cassert>
+#include <cmath>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <regex>
 #include <set>
 #include <sstream>
@@ -25,6 +27,7 @@ int main(int argc, char *argv[])
    set<string> allowed_guesses;
    set<string> answers;
 
+#if 0
    // Load possible guesses (and all_words)
    {
       const string allowed_guesses_filename{"wordle-allowed-guesses.txt"};
@@ -48,6 +51,7 @@ int main(int argc, char *argv[])
 
       words.close();
    }
+#endif
 
    // Load possible answers (and all_words)
    {
@@ -67,11 +71,66 @@ int main(int argc, char *argv[])
       while (getline(words, word))
       {
          answers.insert(word);
-         all_words.insert(word);
+         // all_words.insert(word);
       }
 
       words.close();
    }
+
+   if (argc != 2)
+   {
+      cout << "Need an input file!" << endl;
+
+      return 1;
+   }
+
+   // Load the specified file
+   {
+      const string guesses_filename{argv[1]};
+      ifstream words(guesses_filename);
+
+      if (! words)
+      {
+         stringstream ss;
+
+         ss << guesses_filename << " is missing";
+         throw runtime_error(ss.str());
+      }
+
+      string word;
+
+      while (getline(words, word))
+         all_words.insert(word);
+
+      words.close();
+   }
+
+   const long double item_count(all_words.size());
+
+   // guess --> entropy
+   map<string, long double> entropies;
+
+   for (const string &guess : all_words)
+   {
+      // bin --> item count in bin
+      map<string, size_t> bins;
+
+      for (const string &answer : answers)
+         ++bins[compare(answer, guess)];
+
+      // bin --> probability of landing in bin
+      map<string, long double> probabilities;
+
+      for (const auto & [key, val] : bins)
+         probabilities[key] = val / item_count;
+
+      for (const auto & [key, val] : probabilities)
+         entropies[guess] -= val * log2(val);
+
+      cout << guess << " " << entropies[guess] << endl;
+   }
+
+   return 0;
 
    // Set up regular expressions to test validity of inputs
    stringstream word_ss;
