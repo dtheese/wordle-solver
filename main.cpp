@@ -1,8 +1,5 @@
 #include <cassert>
-#include <cmath>
-#include <fstream>
 #include <iostream>
-#include <map>
 #include <regex>
 #include <set>
 #include <sstream>
@@ -10,127 +7,23 @@
 
 using namespace std;
 
+#include "parameters.h"
 #include "tools.h"
+#include "type_aliases.h"
 
-int main(int argc, char *argv[])
+int main()
 {
-   // TODO: Remove void cast of argc and argv
-   (void) argc;
-   (void) argv;
+   // Create a set of all words and a set of only words that are allowed
+   // to be answers
+   word_list_t all_words;
+   word_list_t answers;
 
-   constexpr bool DEBUG_MODE{false};
-   constexpr bool GREEN_CHECK{false};
-   constexpr size_t WORD_LENGTH{5};
-
-   // Load allowed guesses (and all_words)
-   set<string> all_words;
-   set<string> allowed_guesses;
-   set<string> answers;
-
-#if 0
-   // Load possible guesses (and all_words)
-   {
-      const string allowed_guesses_filename{"wordle-allowed-guesses.txt"};
-      ifstream words(allowed_guesses_filename);
-   
-      if (! words)
-      {
-         stringstream ss;
-   
-         ss << allowed_guesses_filename << " is missing";
-         throw runtime_error(ss.str());
-      }
-
-      string word;
-
-      while (getline(words, word))
-      {
-         allowed_guesses.insert(word);
-         all_words.insert(word);
-      }
-
-      words.close();
-   }
-#endif
-
-   // Load possible answers (and all_words)
-   {
-      const string answers_filename{"wordle-answers-alphabetical.txt"};
-      ifstream words(answers_filename);
-
-      if (! words)
-      {
-         stringstream ss;
-
-         ss << answers_filename << " is missing";
-         throw runtime_error(ss.str());
-      }
-
-      string word;
-
-      while (getline(words, word))
-      {
-         answers.insert(word);
-         // all_words.insert(word);
-      }
-
-      words.close();
-   }
-
-   if (argc != 2)
-   {
-      cout << "Need an input file!" << endl;
-
-      return 1;
-   }
-
-   // Load the specified file
-   {
-      const string guesses_filename{argv[1]};
-      ifstream words(guesses_filename);
-
-      if (! words)
-      {
-         stringstream ss;
-
-         ss << guesses_filename << " is missing";
-         throw runtime_error(ss.str());
-      }
-
-      string word;
-
-      while (getline(words, word))
-         all_words.insert(word);
-
-      words.close();
-   }
-
-   const long double item_count(all_words.size());
+   load_words(all_words, answers);
 
    // guess --> entropy
-   map<string, long double> entropies;
+   entropy_words_map_t entropies;
 
-   for (const string &guess : all_words)
-   {
-      // bin --> item count in bin
-      map<string, size_t> bins;
-
-      for (const string &answer : answers)
-         ++bins[compare(answer, guess)];
-
-      // bin --> probability of landing in bin
-      map<string, long double> probabilities;
-
-      for (const auto & [key, val] : bins)
-         probabilities[key] = val / item_count;
-
-      for (const auto & [key, val] : probabilities)
-         entropies[guess] -= val * log2(val);
-
-      cout << guess << " " << entropies[guess] << endl;
-   }
-
-   return 0;
+   calculate_entropies(all_words, answers, entropies);
 
    // Set up regular expressions to test validity of inputs
    stringstream word_ss;
@@ -142,7 +35,7 @@ int main(int argc, char *argv[])
    const regex result_regex(result_ss.str());
 
    // Set up variables to keep track of what we learn about
-   // the answer's letters their positions.
+   // the answer's letters and their positions.
    set<char> unused_letters;
    vector<set<char>> location_unknown_letters(WORD_LENGTH);
    vector<char> known_letters(WORD_LENGTH, '\0');
@@ -251,45 +144,6 @@ int main(int argc, char *argv[])
 
             if (! ok_to_mark_unused)
                continue;
-
-            if constexpr (GREEN_CHECK)
-            {
-               // I now believe this check to be unneeded, and have
-               // noted that it can leave this list of candidate words
-               // larger than it needs to be.
-               // 
-               // EXAMPLE
-               // -------
-               // If flair is the answer:
-               // 
-               // Round 1: slate --> bggbb
-               // [^est]la[^est][^est]
-               // 
-               // Round 2: blank --> bggbb
-               // [^beknst]la[^beknst][^beknst]
-               // 
-               // Round 3: plaid --> bgggb
-               // [^bdeknpst]lai[^bdeknpst]
-               // 
-               // Round 4: flail --> ggggb
-               // flai[^bdeknpst]
-               // 
-               // After round 4, the word flail is still in the list of possible answers.
-   
-               // Check to see if this letter is green in *any* other
-               // position before marking it unused!
-               if (
-                     find(
-                            known_letters.cbegin(),
-                            known_letters.cend(),
-                            c
-                         ) != known_letters.cend()
-                  )
-               {
-   
-                  continue;
-               }
-            }
 
             unused_letters.insert(c);
          }
