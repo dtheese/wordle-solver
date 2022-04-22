@@ -1,4 +1,6 @@
 #include <cassert>
+#include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <regex>
 #include <set>
@@ -23,7 +25,25 @@ int main()
    // guess --> entropy
    entropy_words_map_t entropies;
 
+   auto start_time{chrono::steady_clock::now()};
    calculate_entropies(all_words, answers, entropies);
+   auto stop_time{chrono::steady_clock::now()};
+
+   // print_entropies(entropies);
+
+   auto ticks_taken{stop_time - start_time};
+   constexpr long double tick_interval{decltype(ticks_taken)::period::den};
+   long double time_taken{static_cast<long double>(ticks_taken.count()) / tick_interval};
+
+   cout << endl;
+
+   cout << "Time taken by program is: " << fixed
+        << setprecision(6) << time_taken << " seconds" << endl;
+
+
+   cout << endl;
+
+   return 0;
 
    // Set up regular expressions to test validity of inputs
    stringstream word_ss;
@@ -41,7 +61,7 @@ int main()
    vector<char> known_letters(WORD_LENGTH, '\0');
 
    // Proceed with the program's main loop
-   for (size_t round{0}; round < 6; ++round)
+   for (my_uint_t round{0}; round < 6; ++round)
    {
       cout << "Round " << round + 1 << endl;
 
@@ -103,7 +123,7 @@ int main()
       // or green, we must defer the processing of black results until
       // after all yellow and green results have been processed.
 
-      for (size_t i{0}; i < WORD_LENGTH; ++i)
+      for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
       {
          char c{guess[i]};
 
@@ -117,7 +137,7 @@ int main()
             assert(0);
       }
 
-      for (size_t i{0}; i < WORD_LENGTH; ++i)
+      for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
       {
          if (result[i] == 'b')
          {
@@ -154,7 +174,7 @@ int main()
       // don't appear *in the position they were guessed at*.
       stringstream search_regex_ss;
 
-      for (size_t i{0}; i < WORD_LENGTH; ++i)
+      for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
       {
          if (known_letters[i] == '\0')
          {
@@ -189,7 +209,7 @@ int main()
       // Ensure that letters that must be present are present
       set<char> all_location_unknown_letters;
 
-      for (size_t i{0}; i < WORD_LENGTH; ++i)
+      for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
       {
          for (char c : location_unknown_letters[i])
          {

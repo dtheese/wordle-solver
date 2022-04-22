@@ -2,15 +2,41 @@
 #include <cmath>
 #include <cstddef>
 #include <fstream>
+#include <future>
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <sstream>
+#include <thread>
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
 
 #include "parameters.h"
+#include "print_mutex.h"
 #include "tools.h"
+
+namespace
+{
+   const my_uint_t MAX_HW_THREADS{thread::hardware_concurrency()};
+
+   const my_uint_t NUM_THREADS{
+                                 min(
+                                       {
+                                          THREADS_LIMIT,
+                                          MAX_HW_THREADS > 0 ? MAX_HW_THREADS : 1
+                                       }
+                                    )
+                              };
+
+   entropy_words_map_t iterate_over_subset_of_words(
+                                                      word_list_t::const_iterator first,
+                                                      word_list_t::const_iterator last,
+                                                      const word_list_t &answers,
+                                                      my_uint_t total_item_count
+                                                   );
+}
 
 void calculate_entropies(
                            const word_list_t &all_words,
@@ -20,8 +46,46 @@ void calculate_entropies(
 {
    entropies.clear();
 
-   const entropy_t total_item_count(all_words.size());
+   const my_uint_t total_item_count(all_words.size());
+#if 1
+   vector<future<entropy_words_map_t>> futures;
+   const my_uint_t guesses_per_thread{total_item_count / NUM_THREADS};
 
+   {
+      lock_guard<mutex> lg{print_mutex};
+
+      for (my_uint_t i{0}; i < NUM_THREADS; ++i)
+      {
+         word_list_t::const_iterator first{all_words.cbegin()};
+         advance(first, i * guesses_per_thread);
+
+         word_list_t::const_iterator last{first};
+         advance(last, guesses_per_thread);
+
+         if (i == (NUM_THREADS - 1))
+            advance(last, total_item_count % NUM_THREADS);
+
+         cout << "Starting thread " << i << endl;
+
+         futures.push_back(
+                             async(
+                                     launch::async,
+                                     iterate_over_subset_of_words,
+                                     first,
+                                     last,
+                                     answers,
+                                     total_item_count
+                                  )
+                          );
+      }
+   }
+
+   for (my_uint_t i{0}; i < NUM_THREADS; ++i)
+   {
+      auto results{futures[i].get()};
+      entropies.merge(results);
+   }
+#else
    for (const string &guess : all_words)
    {
       // bin --> item count in bin
@@ -34,7 +98,7 @@ void calculate_entropies(
       bin_probability_map_t probabilities;
 
       for (const auto &[bin, item_count] : bins)
-         probabilities[bin] = item_count / total_item_count;
+         probabilities[bin] = item_count / (entropy_t) total_item_count;
 
       entropy_t entropy{};
 
@@ -43,6 +107,7 @@ void calculate_entropies(
 
       entropies.insert({entropy, guess});
    }
+#endif
 }
 
 string compare(const string &answer, const string &guess)
@@ -52,19 +117,19 @@ string compare(const string &answer, const string &guess)
 
    string rval{"*****"};
 
-   unordered_map<char, size_t> char_count_in_answer{};
-   unordered_map<char, size_t> char_count_in_guess{};
-   unordered_map<char, size_t> char_count_marked{};
+   unordered_map<char, my_uint_t> char_count_in_answer{};
+   unordered_map<char, my_uint_t> char_count_in_guess{};
+   unordered_map<char, my_uint_t> char_count_marked{};
 
    // Get count of characters in answer and guess
-   for (size_t i{0}; i < WORD_LENGTH; ++i)
+   for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
    {
       ++char_count_in_answer[answer[i]];
       ++char_count_in_guess[guess[i]];
    }
 
    // Mark green squares
-   for (size_t i{0}; i < WORD_LENGTH; ++i)
+   for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
    {
       if (guess[i] == answer[i])
       {
@@ -74,7 +139,7 @@ string compare(const string &answer, const string &guess)
    }
 
    // Mark squares that are definitely black
-   for (size_t i{0}; i < WORD_LENGTH; ++i)
+   for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
    {
       if (char_count_in_answer[guess[i]] == 0)
          rval[i] = 'b';
@@ -88,14 +153,14 @@ string compare(const string &answer, const string &guess)
    // Incorrect response: gbybg
    while (rval.find('*') != string::npos)
    {
-      for (size_t i{0}; i < WORD_LENGTH; ++i)
+      for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
       {
          if (rval[i] != '*')
             continue;
 
          char guess_char{guess[i]};
-         size_t num_guess_char_marked_so_far{char_count_marked[guess_char]};
-         size_t num_guess_char_to_be_marked{char_count_in_answer[guess_char]};
+         my_uint_t num_guess_char_marked_so_far{char_count_marked[guess_char]};
+         my_uint_t num_guess_char_to_be_marked{char_count_in_answer[guess_char]};
 
          if (num_guess_char_to_be_marked > num_guess_char_marked_so_far)
          {
@@ -169,5 +234,48 @@ void print_entropies(const entropy_words_map_t &entropies)
            << ": "
            << entropy
            << endl;
+   }
+}
+
+namespace
+{
+   entropy_words_map_t iterate_over_subset_of_words(
+                                                      word_list_t::const_iterator first,
+                                                      word_list_t::const_iterator last,
+                                                      const word_list_t &answers,
+                                                      my_uint_t total_item_count
+                                                   )
+   {
+      entropy_words_map_t entropies{};
+
+      for (
+             word_list_t::const_iterator iter{first};
+             iter != last;
+             ++iter
+          )
+      {
+         const string &guess{*iter};
+
+         // bin --> item count in bin
+         bin_item_count_map_t bins;
+
+         for (const string &answer : answers)
+            ++bins[compare(answer, guess)];
+
+         // bin --> probability of landing in bin
+         bin_probability_map_t probabilities;
+
+         for (const auto &[bin, item_count] : bins)
+            probabilities[bin] = item_count / (entropy_t) total_item_count;
+
+         entropy_t entropy{};
+
+         for (const auto &[word, prob] : probabilities)
+            entropy -= prob * log2(prob);
+
+         entropies.insert({entropy, guess});
+      }
+
+      return entropies;
    }
 }
