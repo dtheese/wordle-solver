@@ -57,9 +57,6 @@ int main()
 
       calculate_entropies(filtered_word_set, answers, entropies);
 
-      if constexpr (DEBUG_MODE)
-         print_entropies(entropies);
-
       // Get the user's guess
       string guess;
 
@@ -179,9 +176,6 @@ int main()
             search_regex_ss << known_letters[i];
       }
 
-      if constexpr (DEBUG_MODE)
-         cout << "regex: " << search_regex_ss.str() << endl;
-
       const regex re(search_regex_ss.str());
 
       // Use the regular expression to filter the word lists.
@@ -233,14 +227,8 @@ int main()
          }
       }
 
-      if constexpr (DEBUG_MODE)
-         cout << "Letters to be placed: ";
-
       for (char c : all_location_unknown_letters)
       {
-         if constexpr (DEBUG_MODE)
-            cout << c;
-
          for (
                 auto iter {filtered_word_set.begin()};
                 iter != filtered_word_set.end();
@@ -262,14 +250,6 @@ int main()
             else
                ++iter;
          }
-      }
-
-      if constexpr (DEBUG_MODE)
-      {
-         cout << endl << endl;
-
-         for (const string &word : filtered_word_set)
-            cout << word << endl;
       }
 
       cout << endl;

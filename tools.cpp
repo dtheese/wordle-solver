@@ -64,9 +64,6 @@ void calculate_entropies(
          if (i == (NUM_THREADS - 1))
             advance(last, total_item_count % NUM_THREADS);
 
-         if constexpr (DEBUG_MODE)
-            cout << "Starting thread " << i << endl;
-
          futures.push_back(
                              async(
                                      launch::async,
@@ -78,9 +75,6 @@ void calculate_entropies(
                                   )
                           );
       }
-
-      if constexpr (DEBUG_MODE)
-         cout << endl;
    }
 
    for (my_uint_t i{0}; i < NUM_THREADS; ++i)
