@@ -1,6 +1,4 @@
 #include <cassert>
-#include <chrono>
-#include <iomanip>
 #include <iostream>
 #include <regex>
 #include <set>
@@ -25,32 +23,10 @@ int main()
    // guess --> entropy
    entropy_words_map_t entropies;
 
-   chrono::time_point<chrono::steady_clock> start_time;
-   chrono::time_point<chrono::steady_clock> stop_time;
-
-   if constexpr (DEBUG_MODE)
-      start_time = chrono::steady_clock::now();
-
    calculate_entropies(all_words, answers, entropies);
 
    if constexpr (DEBUG_MODE)
-      stop_time = chrono::steady_clock::now();
-
-   if constexpr (DEBUG_MODE)
-   {
       print_entropies(entropies);
-
-      auto ticks_taken{stop_time - start_time};
-      constexpr long double tick_interval{decltype(ticks_taken)::period::den};
-      long double time_taken{static_cast<long double>(ticks_taken.count()) / tick_interval};
-
-      cout << endl;
-
-      cout << "Time taken by program is: " << fixed
-           << setprecision(6) << time_taken << " seconds" << endl;
-   }
-
-   cout << endl;
 
    // Set up regular expressions to test validity of inputs
    stringstream word_ss;

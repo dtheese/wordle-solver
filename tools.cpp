@@ -261,6 +261,8 @@ void print_entropies(const entropy_words_map_t &entropies)
            << entropy
            << endl;
    }
+
+   cout << endl;
 }
 
 namespace
