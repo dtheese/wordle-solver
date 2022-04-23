@@ -13,20 +13,24 @@ using namespace std;
 
 int main()
 {
-   // Create a set of all words and a set of only words that are allowed
-   // to be answers
+   // Load word lists into memory. This is done in a quite space-inefficient
+   // way, but it doesn't harm anything, so leave it since it's the clearest
+   // way to maintain these lists.
+
+   // Create a set of all words (used to enforce that guesses be valid words).
+   // Create a set of all words that are allowed answers.
    word_list_t all_words;
    word_list_t answers;
 
    load_words(all_words, answers);
 
-   // guess --> entropy
-   entropy_words_map_t entropies;
+   // Create a set of all words that haven't been filtered out by the game's results.
+   // This is initially the set of all words.
+   word_list_t filtered_word_set{all_words};
 
-   calculate_entropies(all_words, answers, entropies);
-
-   if constexpr (DEBUG_MODE)
-      print_entropies(entropies);
+   // Create a set of allowed answers that haven't been filtered out by the
+   // game's results. This is initially the set of all allowed answers.
+   word_list_t filtered_answer_set{answers};
 
    // Set up regular expressions to test validity of inputs
    stringstream word_ss;
@@ -48,18 +52,45 @@ int main()
    {
       cout << "Round " << round + 1 << endl;
 
+      // guess --> entropy
+      entropy_words_map_t entropies;
+
+      calculate_entropies(filtered_word_set, answers, entropies);
+
+      if constexpr (DEBUG_MODE)
+         print_entropies(entropies);
+
+      // Get the user's guess
       string guess;
-      string result;
+
+      if (filtered_answer_set.size() == 1)
+      {
+         cout << "Only remaining allowed answer word: "
+              << *(filtered_answer_set.begin())
+              << endl;
+      }
+      else
+      {
+         cout << "Best guess by entropy: "
+              << entropies.begin()->second
+              << " ("
+              << entropies.begin()->first
+              << ")"
+              << endl;
+      }
 
       while (true)
       {
          get_user_input("Word", word_regex, guess);
 
-         if (all_words.find(guess) == answers.end())
+         if (all_words.find(guess) == all_words.end())
             cout << "Not a word!" << endl << endl;
          else
             break;
       }
+
+      // Get the result of the user's guess
+      string result;
 
       get_user_input("Result", result_regex, result);
 
@@ -151,15 +182,34 @@ int main()
       if constexpr (DEBUG_MODE)
          cout << "regex: " << search_regex_ss.str() << endl;
 
-      const regex candidate_regex(search_regex_ss.str());
-      set<string> candidate_answers;
+      const regex re(search_regex_ss.str());
 
-      for (const string &word : answers)
+      // Use the regular expression to filter the word list.
+      // More filtering will be done later.
+      for (
+             auto iter{filtered_word_set.begin()};
+             iter != filtered_word_set.end();
+          )
       {
          smatch m;
 
-         if (regex_match(word, m, candidate_regex))
-            candidate_answers.insert(word);
+         if (! regex_match(*iter, m, re))
+            iter = filtered_word_set.erase(iter);
+         else
+            ++iter;
+      }
+
+      for (
+             auto iter{filtered_answer_set.begin()};
+             iter != filtered_answer_set.end();
+          )
+      {
+         smatch m;
+
+         if (! regex_match(*iter, m, re))
+            iter = filtered_answer_set.erase(iter);
+         else
+            ++iter;
       }
 
       // Ensure that letters that must be present are present
@@ -192,12 +242,23 @@ int main()
             cout << c;
 
          for (
-                auto iter {candidate_answers.begin()};
-                iter != candidate_answers.end();
+                auto iter {filtered_word_set.begin()};
+                iter != filtered_word_set.end();
             )
          {
             if (iter->find(c) == string::npos)
-               iter = candidate_answers.erase(iter);
+               iter = filtered_word_set.erase(iter);
+            else
+               ++iter;
+         }
+
+         for (
+                auto iter {filtered_answer_set.begin()};
+                iter != filtered_answer_set.end();
+            )
+         {
+            if (iter->find(c) == string::npos)
+               iter = filtered_answer_set.erase(iter);
             else
                ++iter;
          }
@@ -207,7 +268,7 @@ int main()
       {
          cout << endl << endl;
 
-         for (const string &word : candidate_answers)
+         for (const string &word : filtered_word_set)
             cout << word << endl;
       }
 
