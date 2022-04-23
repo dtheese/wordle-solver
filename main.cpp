@@ -48,7 +48,7 @@ int main()
    vector<char> known_letters(WORD_LENGTH, '\0');
 
    // Proceed with the program's main loop
-   for (my_uint_t round{0}; round < 6; ++round)
+   for (my_uint_t round{0}; round < ROUNDS; ++round)
    {
       cout << "Round " << round + 1 << endl;
 
@@ -62,14 +62,18 @@ int main()
 
       if (filtered_answer_set.size() == 1)
       {
+         guess = *(filtered_answer_set.begin());
+
          cout << "Only remaining allowed answer word: "
-              << *(filtered_answer_set.begin())
+              << guess
               << endl;
       }
       else
       {
+         guess = entropies.begin()->second;
+
          cout << "Best guess by entropy: "
-              << entropies.begin()->second
+              << guess
               << " ("
               << entropies.begin()->first
               << ")"

@@ -8,6 +8,7 @@ using namespace std;
 
 #include "type_aliases.h"
 
+constexpr my_uint_t ROUNDS{9};
 constexpr my_uint_t WORD_LENGTH{5};
 
 // This allows the user to set a limit on the number of threads.
