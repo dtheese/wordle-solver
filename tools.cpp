@@ -177,7 +177,6 @@ void load_words(word_list_t &all_words, word_list_t &answers)
 
    // Load allowed guesses which aren't possible answers into
    // the list of all words.
-   const string allowed_guesses_filename{"wordle-allowed-guesses.txt"};
    ifstream allowed_guesses(allowed_guesses_filename);
 
    if (! allowed_guesses)
@@ -197,7 +196,6 @@ void load_words(word_list_t &all_words, word_list_t &answers)
 
    // Now load possible answers into its own list as well as
    // into the list of all words.
-   const string allowed_answers_filename{"wordle-answers-alphabetical.txt"};
    ifstream allowed_answers(allowed_answers_filename);
 
    if (! allowed_answers)
