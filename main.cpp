@@ -184,7 +184,7 @@ int main()
 
       const regex re(search_regex_ss.str());
 
-      // Use the regular expression to filter the word list.
+      // Use the regular expression to filter the word lists.
       // More filtering will be done later.
       for (
              auto iter{filtered_word_set.begin()};
