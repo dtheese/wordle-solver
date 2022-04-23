@@ -1,6 +1,7 @@
 #ifndef TOOLS_INCLUDED
 #define TOOLS_INCLUDED
 
+#include <regex>
 #include <string>
 
 using namespace std;
@@ -14,6 +15,7 @@ void calculate_entropies(
                         );
 
 string compare(const string &answer, const string &guess);
+void get_user_input(const string &prompt, const regex &re, string &user_input);
 void load_words(word_list_t &all_words, word_list_t &answers);
 void print_entropies(const entropy_words_map_t &entropies);
 

@@ -77,18 +77,7 @@ int main()
 
       while (true)
       {
-         smatch m;
-
-         cout << "Word: ";
-         cin >> guess;
-
-         if (! regex_match(guess, m, word_regex))
-         {
-            cout << endl;
-            cout << "Invalid: " << guess << endl << endl;
-
-            continue;
-         }
+         get_user_input("Word", word_regex, guess);
 
          if (all_words.find(guess) == answers.end())
             cout << "Not a word!" << endl << endl;
@@ -96,23 +85,7 @@ int main()
             break;
       }
 
-      while (true)
-      {
-         smatch m;
-
-         cout << "Result: ";
-         cin >> result;
-
-         if (! regex_match(result, m, result_regex))
-         {
-            cout << endl;
-            cout << "Invalid: " << result << endl << endl;
-
-            continue;
-         }
-         else
-            break;
-      }
+      get_user_input("Result", result_regex, result);
 
       if (result == "ggggg")
          break;

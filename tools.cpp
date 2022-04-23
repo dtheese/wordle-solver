@@ -90,6 +90,7 @@ void calculate_entropies(
       entropies.merge(results);
    }
 #else
+   // TODO: Remove sequential version
    for (const string &guess : all_words)
    {
       // bin --> item count in bin
@@ -177,6 +178,27 @@ string compare(const string &answer, const string &guess)
    }
 
    return rval;
+}
+
+void get_user_input(const string &prompt, const regex &re, string &user_input)
+{
+   while (true)
+   {
+      smatch m;
+
+      cout << prompt << ": ";
+      cin >> user_input;
+
+      if (! regex_match(user_input, m, re))
+      {
+         cout << endl;
+         cout << "Invalid: " << user_input << endl << endl;
+
+         continue;
+      }
+      else
+         break;
+   }
 }
 
 void load_words(word_list_t &all_words, word_list_t &answers)
