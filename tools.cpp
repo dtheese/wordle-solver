@@ -47,7 +47,6 @@ void calculate_entropies(
    entropies.clear();
 
    const my_uint_t total_item_count(all_words.size());
-#if 1
    vector<future<entropy_words_map_t>> futures;
    const my_uint_t guesses_per_thread{total_item_count / NUM_THREADS};
 
@@ -89,30 +88,6 @@ void calculate_entropies(
       auto results{futures[i].get()};
       entropies.merge(results);
    }
-#else
-   // TODO: Remove sequential version
-   for (const string &guess : all_words)
-   {
-      // bin --> item count in bin
-      bin_item_count_map_t bins;
-
-      for (const string &answer : answers)
-         ++bins[compare(answer, guess)];
-
-      // bin --> probability of landing in bin
-      bin_probability_map_t probabilities;
-
-      for (const auto &[bin, item_count] : bins)
-         probabilities[bin] = item_count / (entropy_t) total_item_count;
-
-      entropy_t entropy{};
-
-      for (const auto &[word, prob] : probabilities)
-         entropy -= prob * log2(prob);
-
-      entropies.insert({entropy, guess});
-   }
-#endif
 }
 
 string compare(const string &answer, const string &guess)
