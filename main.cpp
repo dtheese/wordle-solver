@@ -37,10 +37,9 @@ int main()
       stop_time = chrono::steady_clock::now();
 
    if constexpr (DEBUG_MODE)
+   {
       print_entropies(entropies);
 
-   if constexpr (DEBUG_MODE)
-   {
       auto ticks_taken{stop_time - start_time};
       constexpr long double tick_interval{decltype(ticks_taken)::period::den};
       long double time_taken{static_cast<long double>(ticks_taken.count()) / tick_interval};
