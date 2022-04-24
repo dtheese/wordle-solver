@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
    // Create a set of allowed answers that haven't been filtered out by the
    // game's results. This is initially the set of all allowed answers.
-   // word_list_t answers_filtered{answers_unfiltered};
+   word_list_t answers_filtered{answers_unfiltered};
 
    // Set up regular expressions to test validity of inputs
    stringstream word_ss;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
       // entropy --> word(s) with that entropy
       entropy_words_map_t entropies;
 
-      calculate_entropies(all_words_filtered, answers_unfiltered, entropies);
+      calculate_entropies(all_words_unfiltered, answers_filtered, entropies);
 
       // Determine the next guess
       string guess;
@@ -99,8 +99,8 @@ int main(int argc, char *argv[])
       set_intersection(
                          all_words_filtered.cbegin(),
                          all_words_filtered.cend(),
-                         answers_unfiltered.cbegin(),
-                         answers_unfiltered.cend(),
+                         answers_filtered.cbegin(),
+                         answers_filtered.cend(),
                          inserter(intersection, intersection.end())
                       );
 
@@ -247,6 +247,19 @@ int main(int argc, char *argv[])
             ++iter;
       }
 
+      for (
+             auto iter{answers_filtered.cbegin()};
+             iter != answers_filtered.cend();
+          )
+      {
+         smatch m;
+
+         if (! regex_match(*iter, m, re))
+            iter = answers_filtered.erase(iter);
+         else
+            ++iter;
+      }
+
       // Ensure that letters that must be present are present
       set<char> all_location_unknown_letters;
 
@@ -277,6 +290,17 @@ int main(int argc, char *argv[])
          {
             if (iter->find(c) == string::npos)
                iter = all_words_filtered.erase(iter);
+            else
+               ++iter;
+         }
+
+         for (
+                auto iter {answers_filtered.cbegin()};
+                iter != answers_filtered.cend();
+            )
+         {
+            if (iter->find(c) == string::npos)
+               iter = answers_filtered.erase(iter);
             else
                ++iter;
          }
