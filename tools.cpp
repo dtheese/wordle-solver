@@ -85,6 +85,7 @@ void calculate_entropies(
 
 string compare(const string &answer, const string &guess)
 {
+   my_uint_t chars_left_to_mark{WORD_LENGTH};
    string rval{"*****"};
 
    unordered_map<char, my_uint_t> char_count_in_answer{};
@@ -101,6 +102,7 @@ string compare(const string &answer, const string &guess)
       {
          rval[i] = 'g';
          ++char_count_marked[guess[i]];
+         --chars_left_to_mark;
       }
    }
 
@@ -108,7 +110,10 @@ string compare(const string &answer, const string &guess)
    for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
    {
       if (char_count_in_answer[guess[i]] == 0)
+      {
          rval[i] = 'b';
+         --chars_left_to_mark;
+      }
    }
 
    // Mark yellow squares and remaining black squares. This can be tricky.
@@ -117,7 +122,7 @@ string compare(const string &answer, const string &guess)
    // Guess             : azaza
    // Correct response  : gbbbg
    // Incorrect response: gbybg
-   while (rval.find('*') != string::npos)
+   while (chars_left_to_mark > 0)
    {
       for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
       {
@@ -132,9 +137,13 @@ string compare(const string &answer, const string &guess)
          {
             rval[i] = 'y';
             ++char_count_marked[guess_char];
+            --chars_left_to_mark;
          }
          else
+         {
             rval[i] = 'b';
+            --chars_left_to_mark;
+         }
       }
    }
 
