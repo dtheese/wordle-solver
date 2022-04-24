@@ -45,11 +45,11 @@ int main(int argc, char *argv[])
    // Ensure the target_word, if user-supplied, is in the corpus
    if (target_word != "")
    {
-      if (all_words_unfiltered.find(target_word) == all_words_unfiltered.cend())
+      if (answers_unfiltered.find(target_word) == answers_unfiltered.cend())
       {
          cout << "The supplied target word, "
               << target_word
-              << ", is not a word!"
+              << ", is not an allowed answer word!"
               << endl;
 
          cout << endl;
