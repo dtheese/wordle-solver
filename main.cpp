@@ -145,6 +145,8 @@ int main(int argc, char *argv[])
       else
          get_user_input("Result", result_regex, result);
 
+      cout << result << endl;
+
       if (result == "ggggg")
          break;
 
