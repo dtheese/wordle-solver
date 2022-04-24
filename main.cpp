@@ -112,6 +112,14 @@ int main(int argc, char *argv[])
               << guess
               << endl;
       }
+      else if (intersection.size() == 0)
+      {
+         cout << "No possible answer words remain. "
+              << "Something is wrong!"
+              << endl;
+
+         return 1;
+      }
       else
       {
          guess = entropies.cbegin()->second;
