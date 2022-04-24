@@ -1,4 +1,3 @@
-#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <fstream>
@@ -86,9 +85,6 @@ void calculate_entropies(
 
 string compare(const string &answer, const string &guess)
 {
-   assert(answer.size() == WORD_LENGTH);
-   assert(guess.size() == WORD_LENGTH);
-
    string rval{"*****"};
 
    unordered_map<char, my_uint_t> char_count_in_answer{};
