@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
    // Ensure the target_word, if user-supplied, is in the corpus
    if (target_word != "")
    {
-      if (all_words_unfiltered.find(target_word) == all_words_unfiltered.end())
+      if (all_words_unfiltered.find(target_word) == all_words_unfiltered.cend())
       {
          cout << "The supplied target word, "
               << target_word
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 
       if (intersection.size() == 1)
       {
-         guess = *(intersection.begin());
+         guess = *(intersection.cbegin());
 
          cout << "Only remaining allowed answer word: "
               << guess
@@ -114,12 +114,12 @@ int main(int argc, char *argv[])
       }
       else
       {
-         guess = entropies.begin()->second;
+         guess = entropies.cbegin()->second;
 
          cout << "Best guess by entropy: "
               << guess
               << " ("
-              << entropies.begin()->first
+              << entropies.cbegin()->first
               << ")"
               << endl;
       }
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
          {
             get_user_input("Word", word_regex, guess);
 
-            if (all_words_unfiltered.find(guess) == all_words_unfiltered.end())
+            if (all_words_unfiltered.find(guess) == all_words_unfiltered.cend())
                cout << "Not a word!" << endl << endl;
             else
                break;
@@ -235,8 +235,8 @@ int main(int argc, char *argv[])
       // Use the regular expression to filter the guess list.
       // More filtering will be done later.
       for (
-             auto iter{all_words_filtered.begin()};
-             iter != all_words_filtered.end();
+             auto iter{all_words_filtered.cbegin()};
+             iter != all_words_filtered.cend();
           )
       {
          smatch m;
@@ -271,8 +271,8 @@ int main(int argc, char *argv[])
       for (char c : all_location_unknown_letters)
       {
          for (
-                auto iter {all_words_filtered.begin()};
-                iter != all_words_filtered.end();
+                auto iter {all_words_filtered.cbegin()};
+                iter != all_words_filtered.cend();
             )
          {
             if (iter->find(c) == string::npos)
