@@ -10,6 +10,9 @@ using namespace std;
 
 constexpr my_uint_t ROUNDS{20};
 constexpr my_uint_t WORD_LENGTH{5};
+
+// Specify whether the recommended guess should be used automatically
+// or if the user should be prompted to enter a guess.
 constexpr bool MANUAL_MODE{false};
 
 // This allows the user to set a limit on the number of threads.
