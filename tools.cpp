@@ -88,15 +88,11 @@ string compare(const string &answer, const string &guess)
    string rval{"*****"};
 
    unordered_map<char, my_uint_t> char_count_in_answer{};
-   unordered_map<char, my_uint_t> char_count_in_guess{};
    unordered_map<char, my_uint_t> char_count_marked{};
 
-   // Get count of characters in answer and guess
+   // Get counts of characters in answer
    for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
-   {
       ++char_count_in_answer[answer[i]];
-      ++char_count_in_guess[guess[i]];
-   }
 
    // Mark green squares
    for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
