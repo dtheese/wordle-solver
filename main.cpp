@@ -134,16 +134,17 @@ int main(int argc, char *argv[])
 
       if constexpr (MANUAL_MODE)
       {
-#if 0
-         stringstream ss;
+         if constexpr (DEBUG_MODE)
+         {
+            stringstream ss;
 
-         ss << "all_words_filtered_" << round + 1 << ".txt";
-         save_word_list(all_words_filtered, ss.str());
+            ss << "all_words_filtered_" << round + 1 << ".txt";
+            save_word_list(all_words_filtered, ss.str());
 
-         ss.str("");
-         ss << "answers_filtered_" << round + 1 << ".txt";
-         save_word_list(answers_filtered, ss.str());
-#endif
+            ss.str("");
+            ss << "answers_filtered_" << round + 1 << ".txt";
+            save_word_list(answers_filtered, ss.str());
+         }
 
          while (true)
          {
