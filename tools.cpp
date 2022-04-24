@@ -232,6 +232,16 @@ void print_entropies(const entropy_words_map_t &entropies)
    cout << endl;
 }
 
+void save_word_list(const word_list_t &word_list, const string &filename)
+{
+   ofstream word_list_file{filename};
+
+   for (const string &word : word_list)
+      word_list_file << word << endl;
+
+   word_list_file.close();
+}
+
 namespace
 {
    entropy_words_map_t iterate_over_subset_of_words(
