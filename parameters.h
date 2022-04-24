@@ -16,9 +16,9 @@ constexpr bool MANUAL_MODE{false};
 constexpr my_uint_t THREADS_LIMIT{numeric_limits<my_uint_t>::max()};
 // constexpr my_uint_t THREADS_LIMIT{<your desired value>};
 
-// const string allowed_guesses_filename{"wordle-allowed-guesses.txt"};
-// const string allowed_answers_filename{"wordle-answers-alphabetical.txt"};
-const string allowed_guesses_filename{"wordmaster-allowed-guesses.txt"};
-const string allowed_answers_filename{"wordmaster-answers-alphabetical.txt"};
+const string allowed_guesses_filename{"wordle-allowed-guesses.txt"};
+const string allowed_answers_filename{"wordle-answers-alphabetical.txt"};
+// const string allowed_guesses_filename{"wordmaster-allowed-guesses.txt"};
+// const string allowed_answers_filename{"wordmaster-answers-alphabetical.txt"};
 
 #endif
