@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
    {
       cout << "Round " << round + 1 << endl;
 
-      // entropy --> word(s)
+      // entropy --> word(s) with that entropy
       entropy_words_map_t entropies;
 
       calculate_entropies(all_words_filtered, answers_unfiltered, entropies);
