@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <iterator>
 #include <regex>
 #include <set>
 #include <sstream>
@@ -11,26 +13,55 @@ using namespace std;
 #include "tools.h"
 #include "type_aliases.h"
 
-int main()
+int main(int argc, char *argv[])
 {
+   string target_word;
+
+   if (argc > 2)
+   {
+      cout << "Usage: " << argv[0] << " [<target word>]" << endl;
+      cout << "   If a target word is supplied, result calculations" << endl;
+      cout << "   will be performed automatically. Otherwise, the" << endl;
+      cout << "   user will have to enter them manually." << endl;
+
+      cout << endl;
+
+      return 1;
+   }
+   else if (argc == 2)
+      target_word = argv[1];
+
    // Load word lists into memory. This is done in a quite space-inefficient
    // way, but it doesn't harm anything, so leave it since it's the clearest
    // way to maintain these lists.
 
    // Create a set of all words (used to enforce that guesses be valid words).
    // Create a set of all words that are allowed answers.
-   word_list_t all_words;
-   word_list_t answers;
+   word_list_t all_words_unfiltered;
+   word_list_t answers_unfiltered;
 
-   load_words(all_words, answers);
+   load_words(all_words_unfiltered, answers_unfiltered);
+
+   // Ensure the target_word, if user-supplied, is in the corpus
+   if (all_words_unfiltered.find(target_word) == all_words_unfiltered.end())
+   {
+      cout << "The supplied target word, "
+           << target_word
+           << ", is not a word!"
+           << endl;
+
+      cout << endl;
+
+      return 1;
+   }
 
    // Create a set of all words that haven't been filtered out by the game's results.
    // This is initially the set of all words.
-   word_list_t filtered_word_set{all_words};
+   word_list_t all_words_filtered{all_words_unfiltered};
 
    // Create a set of allowed answers that haven't been filtered out by the
    // game's results. This is initially the set of all allowed answers.
-   word_list_t filtered_answer_set{answers};
+   // word_list_t answers_filtered{answers_unfiltered};
 
    // Set up regular expressions to test validity of inputs
    stringstream word_ss;
@@ -52,17 +83,27 @@ int main()
    {
       cout << "Round " << round + 1 << endl;
 
-      // guess --> entropy
+      // entropy --> word(s)
       entropy_words_map_t entropies;
 
-      calculate_entropies(filtered_word_set, answers, entropies);
+      calculate_entropies(all_words_filtered, answers_unfiltered, entropies);
 
-      // Get the user's guess
+      // Determine the next guess
       string guess;
 
-      if (filtered_answer_set.size() == 1)
+      word_list_t intersection;
+
+      set_intersection(
+                         all_words_filtered.cbegin(),
+                         all_words_filtered.cend(),
+                         answers_unfiltered.cbegin(),
+                         answers_unfiltered.cend(),
+                         inserter(intersection, intersection.end())
+                      );
+
+      if (intersection.size() == 1)
       {
-         guess = *(filtered_answer_set.begin());
+         guess = *(intersection.begin());
 
          cout << "Only remaining allowed answer word: "
               << guess
@@ -80,20 +121,26 @@ int main()
               << endl;
       }
 
-      while (true)
+      if constexpr (MANUAL_MODE)
       {
-         get_user_input("Word", word_regex, guess);
+         while (true)
+         {
+            get_user_input("Word", word_regex, guess);
 
-         if (all_words.find(guess) == all_words.end())
-            cout << "Not a word!" << endl << endl;
-         else
-            break;
+            if (all_words_unfiltered.find(guess) == all_words_unfiltered.end())
+               cout << "Not a word!" << endl << endl;
+            else
+               break;
+         }
       }
 
       // Get the result of the user's guess
       string result;
 
-      get_user_input("Result", result_regex, result);
+      if (target_word != "")
+         result = compare(target_word, guess);
+      else
+         get_user_input("Result", result_regex, result);
 
       if (result == "ggggg")
          break;
@@ -182,30 +229,17 @@ int main()
 
       const regex re(search_regex_ss.str());
 
-      // Use the regular expression to filter the word lists.
+      // Use the regular expression to filter the guess list.
       // More filtering will be done later.
       for (
-             auto iter{filtered_word_set.begin()};
-             iter != filtered_word_set.end();
+             auto iter{all_words_filtered.begin()};
+             iter != all_words_filtered.end();
           )
       {
          smatch m;
 
          if (! regex_match(*iter, m, re))
-            iter = filtered_word_set.erase(iter);
-         else
-            ++iter;
-      }
-
-      for (
-             auto iter{filtered_answer_set.begin()};
-             iter != filtered_answer_set.end();
-          )
-      {
-         smatch m;
-
-         if (! regex_match(*iter, m, re))
-            iter = filtered_answer_set.erase(iter);
+            iter = all_words_filtered.erase(iter);
          else
             ++iter;
       }
@@ -234,23 +268,12 @@ int main()
       for (char c : all_location_unknown_letters)
       {
          for (
-                auto iter {filtered_word_set.begin()};
-                iter != filtered_word_set.end();
+                auto iter {all_words_filtered.begin()};
+                iter != all_words_filtered.end();
             )
          {
             if (iter->find(c) == string::npos)
-               iter = filtered_word_set.erase(iter);
-            else
-               ++iter;
-         }
-
-         for (
-                auto iter {filtered_answer_set.begin()};
-                iter != filtered_answer_set.end();
-            )
-         {
-            if (iter->find(c) == string::npos)
-               iter = filtered_answer_set.erase(iter);
+               iter = all_words_filtered.erase(iter);
             else
                ++iter;
          }

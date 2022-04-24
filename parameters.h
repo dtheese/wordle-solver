@@ -10,6 +10,7 @@ using namespace std;
 
 constexpr my_uint_t ROUNDS{20};
 constexpr my_uint_t WORD_LENGTH{5};
+constexpr bool MANUAL_MODE{false};
 
 // This allows the user to set a limit on the number of threads.
 constexpr my_uint_t THREADS_LIMIT{numeric_limits<my_uint_t>::max()};
