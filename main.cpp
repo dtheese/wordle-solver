@@ -160,11 +160,12 @@ int main(int argc, char *argv[])
       string result;
 
       if (target_word != "")
+      {
          result = compare(target_word, guess);
+         cout << result << endl;
+      }
       else
          get_user_input("Result", result_regex, result);
-
-      cout << result << endl;
 
       if (result == "ggggg")
          break;
