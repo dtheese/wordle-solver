@@ -43,16 +43,19 @@ int main(int argc, char *argv[])
    load_words(all_words_unfiltered, answers_unfiltered);
 
    // Ensure the target_word, if user-supplied, is in the corpus
-   if (all_words_unfiltered.find(target_word) == all_words_unfiltered.end())
+   if (target_word != "")
    {
-      cout << "The supplied target word, "
-           << target_word
-           << ", is not a word!"
-           << endl;
+      if (all_words_unfiltered.find(target_word) == all_words_unfiltered.end())
+      {
+         cout << "The supplied target word, "
+              << target_word
+              << ", is not a word!"
+              << endl;
 
-      cout << endl;
+         cout << endl;
 
-      return 1;
+         return 1;
+      }
    }
 
    // Create a set of all words that haven't been filtered out by the game's results.
