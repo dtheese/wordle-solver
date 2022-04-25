@@ -8,7 +8,7 @@ using namespace std;
 
 #include "type_aliases.h"
 
-constexpr my_uint_t ROUNDS{20};
+constexpr my_uint_t ROUNDS{50};
 constexpr my_uint_t WORD_LENGTH{5};
 
 // Specify whether the recommended guess should be used automatically
