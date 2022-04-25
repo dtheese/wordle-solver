@@ -124,20 +124,20 @@ int main(int argc, char *argv[])
               << endl;
       }
 
+      if constexpr (DEBUG_MODE)
+      {
+         stringstream ss;
+
+         ss << "all_words_filtered_" << round << ".txt";
+         save_word_list(all_words_filtered, ss.str());
+
+         ss.str("");
+         ss << "answers_filtered_" << round << ".txt";
+         save_word_list(answers_filtered, ss.str());
+      }
+
       if constexpr (MANUAL_MODE)
       {
-         if constexpr (DEBUG_MODE)
-         {
-            stringstream ss;
-
-            ss << "all_words_filtered_" << round << ".txt";
-            save_word_list(all_words_filtered, ss.str());
-
-            ss.str("");
-            ss << "answers_filtered_" << round << ".txt";
-            save_word_list(answers_filtered, ss.str());
-         }
-
          while (true)
          {
             get_user_input("Word", word_regex, guess);

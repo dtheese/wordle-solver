@@ -19,6 +19,7 @@ constexpr bool MANUAL_MODE{false};
 constexpr my_uint_t THREADS_LIMIT{numeric_limits<my_uint_t>::max()};
 // constexpr my_uint_t THREADS_LIMIT{<your desired value>};
 
+// Save filtered word lists to disk after each round
 constexpr bool DEBUG_MODE{false};
 
 const string allowed_guesses_filename{"wordle-allowed-guesses.txt"};
