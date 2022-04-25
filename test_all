@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -o nounset
+# set -o errexit
+set -o pipefail
+
+while read ONE_WORD
+do
+   words $ONE_WORD > /dev/null
+   ROUNDS=$?
+
+   echo -n $ONE_WORD
+   echo -n " "
+   echo $ROUNDS;
+done < wordle-answers-alphabetical.txt
+
+exit 0
