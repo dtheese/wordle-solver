@@ -88,10 +88,10 @@ int main(int argc, char *argv[])
       // entropy --> word(s) with that entropy
       entropy_words_map_t entropies;
 
-      // if (round > 1)
+      if (round > 1)
          calculate_entropies(all_words_unfiltered, answers_filtered, entropies);
-      // else
-      //    entropies.insert({1.49, "soare"});
+      else
+         entropies.insert({1.49, "soare"});
 
       // Determine the next guess
       string guess;
@@ -111,6 +111,14 @@ int main(int argc, char *argv[])
               << endl;
 
          return -1;
+      }
+      else if (answers_filtered.size() <= 3)
+      {
+         guess = *(answers_filtered.cbegin());
+
+         cout << "Three remaining answer words; first is: "
+              << guess
+              << endl;
       }
       else
       {
