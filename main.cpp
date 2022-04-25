@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
       cout << endl;
 
-      return 1;
+      return -1;
    }
    else if (argc == 2)
       target_word = argv[1];
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
          cout << endl;
 
-         return 1;
+         return -1;
       }
    }
 
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
               << "Something is wrong!"
               << endl;
 
-         return 1;
+         return -1;
       }
       else
       {
