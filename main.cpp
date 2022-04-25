@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
       {
          guess = *(answers_filtered.cbegin());
 
-         cout << "Three remaining answer words; first is: "
+         cout << "Two or three remaining answer words; first is: "
               << guess
               << endl;
       }
