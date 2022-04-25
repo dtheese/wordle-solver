@@ -333,6 +333,12 @@ int main(int argc, char *argv[])
          }
       }
 
+      // Remove the guessed word from our word lists
+      all_words_unfiltered.erase(guess);
+      all_words_filtered.erase(guess);
+      answers_unfiltered.erase(guess);
+      answers_filtered.erase(guess);
+
       cout << endl;
    }
 
