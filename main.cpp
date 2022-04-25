@@ -1,7 +1,5 @@
-#include <algorithm>
 #include <cassert>
 #include <iostream>
-#include <iterator>
 #include <regex>
 #include <set>
 #include <sstream>
@@ -98,25 +96,15 @@ int main(int argc, char *argv[])
       // Determine the next guess
       string guess;
 
-      word_list_t intersection;
-
-      set_intersection(
-                         all_words_filtered.cbegin(),
-                         all_words_filtered.cend(),
-                         answers_filtered.cbegin(),
-                         answers_filtered.cend(),
-                         inserter(intersection, intersection.end())
-                      );
-
-      if (intersection.size() == 1)
+      if (answers_filtered.size() == 1)
       {
-         guess = *(intersection.cbegin());
+         guess = *(answers_filtered.cbegin());
 
          cout << "Only remaining allowed answer word: "
               << guess
               << endl;
       }
-      else if (intersection.size() == 0)
+      else if (answers_filtered.size() == 0)
       {
          cout << "No possible answer words remain. "
               << "Something is wrong!"
