@@ -80,16 +80,20 @@ int main(int argc, char *argv[])
    set<char> unused_letters;
    vector<set<char>> location_unknown_letters(WORD_LENGTH);
    vector<char> known_letters(WORD_LENGTH, '\0');
+   my_uint_t round{1};
 
    // Proceed with the program's main loop
-   for (my_uint_t round{0}; round < ROUNDS; ++round)
+   for (; round <= ROUNDS; ++round)
    {
-      cout << "Round " << round + 1 << endl;
+      cout << "Round " << round << endl;
 
       // entropy --> word(s) with that entropy
       entropy_words_map_t entropies;
 
-      calculate_entropies(all_words_unfiltered, answers_filtered, entropies);
+      // if (round > 1)
+         calculate_entropies(all_words_unfiltered, answers_filtered, entropies);
+      // else
+      //    entropies.insert({1.49, "soare"});
 
       // Determine the next guess
       string guess;
@@ -138,11 +142,11 @@ int main(int argc, char *argv[])
          {
             stringstream ss;
 
-            ss << "all_words_filtered_" << round + 1 << ".txt";
+            ss << "all_words_filtered_" << round << ".txt";
             save_word_list(all_words_filtered, ss.str());
 
             ss.str("");
-            ss << "answers_filtered_" << round + 1 << ".txt";
+            ss << "answers_filtered_" << round << ".txt";
             save_word_list(answers_filtered, ss.str());
          }
 
@@ -331,4 +335,6 @@ int main(int argc, char *argv[])
 
       cout << endl;
    }
+
+   return round;
 }
