@@ -33,17 +33,18 @@ int main(int argc, char *argv[])
    // way, but it doesn't harm anything, so leave it since it's the clearest
    // way to maintain these lists.
 
-   // Create a set of all words (used to enforce that guesses be valid words).
-   // Create a set of all words that are allowed answers.
+   // Create a set of all words.
+   // Create a set of all words that are allowed answers. This list
+   // gets filtered down as the game proceeds.
    word_list_t all_words_unfiltered;
-   word_list_t answers_unfiltered;
+   word_list_t answers_filtered;
 
-   load_words(all_words_unfiltered, answers_unfiltered);
+   load_words(all_words_unfiltered, answers_filtered);
 
-   // Ensure the target_word, if user-supplied, is in the corpus
+   // Ensure the target_word, if user-supplied, is in the list of allowed anwers
    if (target_word != "")
    {
-      if (answers_unfiltered.find(target_word) == answers_unfiltered.cend())
+      if (answers_filtered.find(target_word) == answers_filtered.cend())
       {
          cout << "The supplied target word, "
               << target_word
@@ -55,14 +56,6 @@ int main(int argc, char *argv[])
          return -1;
       }
    }
-
-   // Create a set of all words that haven't been filtered out by the game's results.
-   // This is initially the set of all words.
-   word_list_t all_words_filtered{all_words_unfiltered};
-
-   // Create a set of allowed answers that haven't been filtered out by the
-   // game's results. This is initially the set of all allowed answers.
-   word_list_t answers_filtered{answers_unfiltered};
 
    // Set up regular expressions to test validity of inputs
    stringstream word_ss;
@@ -146,10 +139,6 @@ int main(int argc, char *argv[])
       {
          stringstream ss;
 
-         ss << "all_words_filtered_" << round << ".txt";
-         save_word_list(all_words_filtered, ss.str());
-
-         ss.str("");
          ss << "answers_filtered_" << round << ".txt";
          save_word_list(answers_filtered, ss.str());
       }
@@ -265,21 +254,8 @@ int main(int argc, char *argv[])
 
       const regex re(search_regex_ss.str());
 
-      // Use the regular expression to filter the guess list.
+      // Use the regular expression to filter the possible answer list.
       // More filtering will be done later.
-      for (
-             auto iter{all_words_filtered.cbegin()};
-             iter != all_words_filtered.cend();
-          )
-      {
-         smatch m;
-
-         if (! regex_match(*iter, m, re))
-            iter = all_words_filtered.erase(iter);
-         else
-            ++iter;
-      }
-
       for (
              auto iter{answers_filtered.cbegin()};
              iter != answers_filtered.cend();
@@ -317,17 +293,6 @@ int main(int argc, char *argv[])
       for (char c : all_location_unknown_letters)
       {
          for (
-                auto iter {all_words_filtered.cbegin()};
-                iter != all_words_filtered.cend();
-            )
-         {
-            if (iter->find(c) == string::npos)
-               iter = all_words_filtered.erase(iter);
-            else
-               ++iter;
-         }
-
-         for (
                 auto iter {answers_filtered.cbegin()};
                 iter != answers_filtered.cend();
             )
@@ -341,8 +306,6 @@ int main(int argc, char *argv[])
 
       // Remove the guessed word from our word lists
       all_words_unfiltered.erase(guess);
-      all_words_filtered.erase(guess);
-      answers_unfiltered.erase(guess);
       answers_filtered.erase(guess);
 
       cout << endl;
