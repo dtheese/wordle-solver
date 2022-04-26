@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
       cout << endl;
 
-      return -1;
+      return 255;
    }
 
    // Load word lists into memory. This is done in a quite space-inefficient
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
          cout << endl;
 
-         return -1;
+         return 255;
       }
    }
 
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
               << "Something is wrong!"
               << endl;
 
-         return -1;
+         return 255;
       }
       else if (answers_filtered.size() == 1)
       {
@@ -321,6 +321,14 @@ int main(int argc, char *argv[])
       answers_filtered.erase(guess);
 
       cout << endl;
+   }
+
+   if (round == ROUNDS + 1)
+   {
+      cout << "Could not solve the puzzle!" << endl;
+      cout << endl;
+
+      return 254;
    }
 
    return round;

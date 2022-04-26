@@ -11,6 +11,13 @@ do
 
    echo -n $ONE_WORD
    echo -n " "
+
+   if [[ $ROUNDS == 254 ]]; then
+      echo FAILURE!!!
+
+      exit 1
+   fi
+
    echo $ROUNDS;
 done < wordle-answers-alphabetical.txt
 # done < wordmaster-answers-alphabetical.txt
