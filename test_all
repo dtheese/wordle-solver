@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO: Parameterize whether to run for Wordle or Wordmaster
+# TODO: Sort results by rounds needed
+# TODO: Save results to disk
+
 set -o nounset
 # set -o errexit
 set -o pipefail
