@@ -12,7 +12,8 @@ constexpr my_uint_t ROUNDS{6};
 constexpr my_uint_t WORD_LENGTH{5};
 
 // Specify whether the recommended guess should be used automatically
-// or if the user should be prompted to enter a guess.
+// or if the user should be prompted to enter a guess. This is useful
+// when solving multiple puzzles simultaneously.
 constexpr bool MANUAL_MODE{false};
 
 // This allows the user to set a limit on the number of threads.
