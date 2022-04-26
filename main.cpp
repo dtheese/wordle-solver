@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
                            )
                   )
                {
-                     ok_to_mark_unused = false;
+                  ok_to_mark_unused = false;
                }
 
                if (! ok_to_mark_unused)
