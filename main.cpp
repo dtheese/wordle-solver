@@ -150,6 +150,9 @@ int main(int argc, char *argv[])
          save_word_list(answers_filtered, ss.str());
       }
 
+      // Let the user manually inout the guess if that's what they want.
+      // This is useful when solving mutiple puzzles simultaneously.
+      // If MANUAL_MODE = false, just use the suggested guess automatically.
       if constexpr (MANUAL_MODE)
       {
          while (true)
