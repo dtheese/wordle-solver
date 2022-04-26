@@ -85,26 +85,10 @@ int main(int argc, char *argv[])
    {
       cout << "Round " << round << endl;
 
-      // entropy --> word(s) with that entropy
-      entropy_words_map_t entropies;
-
-      if (round > 1)
-         calculate_entropies(all_words_unfiltered, answers_filtered, entropies);
-      else
-         entropies.insert({1.49, "soare"});
-
       // Determine the next guess
       string guess;
 
-      if (answers_filtered.size() == 1)
-      {
-         guess = *(answers_filtered.cbegin());
-
-         cout << "Only remaining allowed answer word: "
-              << guess
-              << endl;
-      }
-      else if (answers_filtered.size() == 0)
+      if (answers_filtered.size() == 0)
       {
          cout << "No possible answer words remain. "
               << "Something is wrong!"
@@ -112,19 +96,45 @@ int main(int argc, char *argv[])
 
          return -1;
       }
-      else if (answers_filtered.size() <= 3)
+      else if (answers_filtered.size() == 1)
       {
          guess = *(answers_filtered.cbegin());
 
-         cout << "Two or three remaining answer words; first is: "
+         cout << "Only remaining allowed answer word: "
               << guess
+              << endl;
+      }
+      else if (answers_filtered.size() <= (ROUNDS - round + 1))
+      {
+         // entropy --> word(s) with that entropy
+         entropy_words_map_t entropies;
+
+         calculate_entropies(answers_filtered, answers_filtered, entropies);
+
+         guess = entropies.cbegin()->second;
+
+         cout << "Best guess by entropy over "
+              << answers_filtered.size()
+              << " remaining possible answers: "
+              << guess
+              << " ("
+              << entropies.cbegin()->first
+              << ")"
               << endl;
       }
       else
       {
+         // entropy --> word(s) with that entropy
+         entropy_words_map_t entropies;
+
+         if (round > 1)
+            calculate_entropies(all_words_unfiltered, answers_filtered, entropies);
+         else
+            entropies.insert({1.49, "soare"});
+
          guess = entropies.cbegin()->second;
 
-         cout << "Best guess by entropy: "
+         cout << "Best guess by entropy taken over all guess words: "
               << guess
               << " ("
               << entropies.cbegin()->first
@@ -151,7 +161,7 @@ int main(int argc, char *argv[])
             get_user_input("Word", word_regex, guess);
 
             if (all_words_unfiltered.find(guess) == all_words_unfiltered.cend())
-               cout << "Not a word!" << endl << endl;
+               cout << "Not a valid guess!" << endl << endl;
             else
                break;
          }
