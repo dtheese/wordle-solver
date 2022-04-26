@@ -98,6 +98,14 @@ int main(int argc, char *argv[])
       }
       else if (answers_filtered.size() <= (ROUNDS - round + 1))
       {
+         // This is the case where the number of possible answers
+         // remaining is less than or equal to the number of guesses
+         // remaining. We are guaranteed a win. To pick which word
+         // to try next, again use entropy, but only over the possible
+         // answers (as opposed to the whole corpus). I still need to
+         // test if this yields any actual improvement, but it can't
+         // hurt since we are guaranteed a win at this point.
+
          // entropy --> word(s) with that entropy
          entropy_words_map_t entropies;
 
