@@ -1,13 +1,10 @@
-#include <algorithm>
-#include <cassert>
 #include <iostream>
-#include <regex>
-#include <set>
 #include <sstream>
 #include <string>
 
 using namespace std;
 
+#include "filter.h"
 #include "parameters.h"
 #include "tools.h"
 #include "type_aliases.h"
@@ -33,11 +30,13 @@ int main(int argc, char *argv[])
    // way to maintain these lists.
 
    // Create a set of all words.
+   word_list_t all_words_unfiltered;
+
    // Create a set of all words that are allowed answers. This list
    // gets filtered down as the game proceeds.
-   word_list_t all_words_unfiltered;
    word_list_t answers_filtered;
 
+   // Read these two lists of words from disk.
    load_words(all_words_unfiltered, answers_filtered);
 
    // Ensure the target_word, if user-supplied, is in the list of allowed anwers
@@ -65,17 +64,22 @@ int main(int argc, char *argv[])
    result_ss << "[byg]{" << WORD_LENGTH << "}";
    const regex result_regex(result_ss.str());
 
-   // Set up variables to keep track of what we learn about
-   // the answer's letters and their positions.
-   set<char> unused_letters;
-   vector<set<char>> location_unknown_letters(WORD_LENGTH);
-   vector<char> known_letters(WORD_LENGTH, '\0');
+   // Proceed with the program's main loop
+   filter_t filter;
    my_uint_t round{1};
 
-   // Proceed with the program's main loop
    for (; round <= ROUNDS; ++round)
    {
       cout << "Round " << round << endl;
+
+      // If debugging, save the list of possible answers to disk.
+      if constexpr (DEBUG_MODE)
+      {
+         stringstream ss;
+
+         ss << "answers_filtered_" << round << ".txt";
+         save_word_list(answers_filtered, ss.str());
+      }
 
       // Determine the next guess
       string guess;
@@ -142,15 +146,7 @@ int main(int argc, char *argv[])
               << endl;
       }
 
-      if constexpr (DEBUG_MODE)
-      {
-         stringstream ss;
-
-         ss << "answers_filtered_" << round << ".txt";
-         save_word_list(answers_filtered, ss.str());
-      }
-
-      // Let the user manually inout the guess if that's what they want.
+      // Let the user manually input the guess if that's what they want.
       // This is useful when solving mutiple puzzles simultaneously.
       // If MANUAL_MODE = false, just use the suggested guess automatically.
       if constexpr (MANUAL_MODE)
@@ -180,141 +176,8 @@ int main(int argc, char *argv[])
       if (result == "ggggg")
          break;
 
-      // Build a list of unused letters, location unknown letters,
-      // and location known letters
-
-      // Be careful here! If the answer has N instances of a letter
-      // and if we make a guess that has more than N instances of that
-      // letter, N instances will be reported as yellow or green, but
-      // the remaining instances will be reported as black. We should
-      // not let that cause us to erroneously add that letter to the
-      // set of unused letters! Furthermore, since we don't have a
-      // guarantee of *which* N instances will be reported as yellow
-      // or green, we must defer the processing of black results until
-      // after all yellow and green results have been processed.
-
-      for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
-      {
-         char c{guess[i]};
-
-         if (result[i] == 'b')
-            continue;
-         else if (result[i] == 'y')
-            location_unknown_letters[i].insert(c);
-         else if (result[i] == 'g')
-            known_letters[i] = c;
-         else
-            assert(0);
-      }
-
-      for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
-      {
-         if (result[i] == 'b')
-         {
-            char c{guess[i]};
-
-            // Check to see if this letter is yellow in *any* other
-            // position before leaving it marked as unused!
-            bool ok_to_mark_unused{true};
-
-            for (const auto &one_set : location_unknown_letters)
-            {
-               if (
-                     any_of(
-                              one_set.cbegin(),
-                              one_set.end(),
-                              [=](char one_char){ return one_char == c; }
-                           )
-                  )
-               {
-                  ok_to_mark_unused = false;
-               }
-
-               if (! ok_to_mark_unused)
-                  break;
-            }
-
-            if (! ok_to_mark_unused)
-               continue;
-
-            unused_letters.insert(c);
-         }
-      }
-
-      // Build a regular expression to search for words that meet the criteria
-      // of the letters marked green and to ensure the letters marked yellow
-      // don't appear *in the position they were guessed at*.
-      stringstream search_regex_ss;
-
-      for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
-      {
-         if (known_letters[i] == '\0')
-         {
-            search_regex_ss << "[^";
-
-            for (char c : unused_letters)
-               search_regex_ss << c;
-
-            for (char c : location_unknown_letters[i])
-               search_regex_ss << c;
-
-            search_regex_ss << "]";
-         }
-         else
-            search_regex_ss << known_letters[i];
-      }
-
-      const regex re(search_regex_ss.str());
-
-      // Use the regular expression to filter the possible answer list.
-      // More filtering will be done later.
-      for (
-             auto iter{answers_filtered.cbegin()};
-             iter != answers_filtered.cend();
-          )
-      {
-         smatch m;
-
-         if (! regex_match(*iter, m, re))
-            iter = answers_filtered.erase(iter);
-         else
-            ++iter;
-      }
-
-      // Ensure that letters that must be present are present
-      set<char> all_location_unknown_letters;
-
-      for (my_uint_t i{0}; i < WORD_LENGTH; ++i)
-      {
-         for (char c : location_unknown_letters[i])
-         {
-            if (
-                  find(
-                         known_letters.cbegin(),
-                         known_letters.cend(),
-                         c
-                      ) ==
-                  known_letters.cend()
-               )
-            {
-               all_location_unknown_letters.insert(c);
-            }
-         }
-      }
-
-      for (char c : all_location_unknown_letters)
-      {
-         for (
-                auto iter {answers_filtered.cbegin()};
-                iter != answers_filtered.cend();
-            )
-         {
-            if (iter->find(c) == string::npos)
-               iter = answers_filtered.erase(iter);
-            else
-               ++iter;
-         }
-      }
+      // Filter the list of possible answers
+      filter.filter(answers_filtered, guess, result);
 
       // Remove the guessed word from our word lists
       all_words_unfiltered.erase(guess);
