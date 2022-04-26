@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <regex>
@@ -207,13 +208,15 @@ int main(int argc, char *argv[])
 
             for (const auto &one_set : location_unknown_letters)
             {
-               for (const char one_char : one_set)
+               if (
+                     any_of(
+                              one_set.cbegin(),
+                              one_set.end(),
+                              [=](char one_char){ return one_char == c; }
+                           )
+                  )
                {
-                  if (one_char == c)
-                  {
                      ok_to_mark_unused = false;
-                     break;
-                  }
                }
 
                if (! ok_to_mark_unused)
