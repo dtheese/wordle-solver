@@ -13,7 +13,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-   string target_word;
+   const string target_word{argc == 2 ? argv[1] : ""};
 
    if (argc > 2)
    {
@@ -26,8 +26,6 @@ int main(int argc, char *argv[])
 
       return -1;
    }
-   else if (argc == 2)
-      target_word = argv[1];
 
    // Load word lists into memory. This is done in a quite space-inefficient
    // way, but it doesn't harm anything, so leave it since it's the clearest
