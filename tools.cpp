@@ -195,8 +195,9 @@ void get_guess(
       entropy_words_map_t entropies;
 
       calculate_entropies(answers_filtered, answers_filtered, entropies);
-
       guess = entropies.cbegin()->second;
+
+      cout << "Possible answers remaining: " << answers_filtered.size() << endl;
 
       cout << "Best guess by entropy over "
            << answers_filtered.size()
@@ -225,6 +226,8 @@ void get_guess(
       }
 
       guess = entropies.cbegin()->second;
+
+      cout << "Possible answers remaining: " << answers_filtered.size() << endl;
 
       cout << "Best guess by entropy taken over all guess words: "
            << guess
