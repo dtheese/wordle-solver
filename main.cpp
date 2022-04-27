@@ -55,11 +55,7 @@ int main(int argc, char *argv[])
       }
    }
 
-   // Set up regular expressions to test validity of inputs
-   stringstream word_ss;
-   word_ss << "[a-z]{" << WORD_LENGTH << "}";
-   const regex word_regex(word_ss.str());
-
+   // Set up a regular expression to test validity of result inputs
    stringstream result_ss;
    result_ss << "[byg]{" << WORD_LENGTH << "}";
    const regex result_regex(result_ss.str());
@@ -84,83 +80,7 @@ int main(int argc, char *argv[])
       // Determine the next guess
       string guess;
 
-      if (answers_filtered.size() == 0)
-      {
-         cout << "No possible answer words remain. "
-              << "Something is wrong!"
-              << endl;
-
-         return 255;
-      }
-      else if (answers_filtered.size() == 1)
-      {
-         guess = *(answers_filtered.cbegin());
-
-         cout << "Only remaining allowed answer word: "
-              << guess
-              << endl;
-      }
-      else if (answers_filtered.size() <= (ROUNDS - round + 1))
-      {
-         // This is the case where the number of possible answers
-         // remaining is less than or equal to the number of guesses
-         // remaining. We are guaranteed a win. To pick which word
-         // to try next, again use entropy, but only over the possible
-         // answers (as opposed to the whole corpus). I still need to
-         // test if this yields any actual improvement, but it can't
-         // hurt since we are guaranteed a win at this point.
-
-         // entropy --> word(s) with that entropy
-         entropy_words_map_t entropies;
-
-         calculate_entropies(answers_filtered, answers_filtered, entropies);
-
-         guess = entropies.cbegin()->second;
-
-         cout << "Best guess by entropy over "
-              << answers_filtered.size()
-              << " remaining possible answers: "
-              << guess
-              << " ("
-              << entropies.cbegin()->first
-              << ")"
-              << endl;
-      }
-      else
-      {
-         // entropy --> word(s) with that entropy
-         entropy_words_map_t entropies;
-
-         if (round > 1)
-            calculate_entropies(all_words_unfiltered, answers_filtered, entropies);
-         else
-            entropies.insert({1.49, "soare"});
-
-         guess = entropies.cbegin()->second;
-
-         cout << "Best guess by entropy taken over all guess words: "
-              << guess
-              << " ("
-              << entropies.cbegin()->first
-              << ")"
-              << endl;
-      }
-
-      // Let the user manually input the guess if that's what they want.
-      // This is useful when solving mutiple puzzles simultaneously.
-      // If MANUAL_MODE = false, just use the suggested guess automatically.
-      if constexpr (MANUAL_MODE)
-      {
-         while (true)
-         {
-            get_user_input("Word", word_regex, guess);
-
-            if (all_words_unfiltered.find(guess) == all_words_unfiltered.cend())
-               cout << "Not a valid guess!" << endl << endl;
-            else
-               break;
-         }
-      }
+      get_guess(all_words_unfiltered, answers_filtered, round, guess);
 
       // Get the result of the user's guess
       string result;

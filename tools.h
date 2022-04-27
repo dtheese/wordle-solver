@@ -15,6 +15,14 @@ void calculate_entropies(
                         );
 
 string compare(const string &answer, const string &guess);
+
+void get_guess(
+                 const word_list_t &all_words_unfiltered,
+                 const word_list_t &answers_filtered,
+                 my_uint_t round,
+                 string &guess
+              );
+
 void get_user_input(const string &prompt, const regex &re, string &user_input);
 void load_words(word_list_t &all_words, word_list_t &answers);
 void print_entropies(const entropy_words_map_t &entropies);
