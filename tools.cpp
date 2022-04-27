@@ -215,7 +215,14 @@ void get_guess(
       if (round > 1)
          calculate_entropies(all_words_unfiltered, answers_filtered, entropies);
       else
-         entropies.insert({1.49, "soare"});
+      {
+         if (allowed_answers_filename == "wordle-answers-alphabetical.txt")
+            entropies.insert({0.5, "soare"});
+         else if (allowed_answers_filename == "wordmaster-answers-alphabetical.txt")
+            entropies.insert({0.5, "tares"});
+         else
+            throw runtime_error("Unknown dictionary!");
+      }
 
       guess = entropies.cbegin()->second;
 
