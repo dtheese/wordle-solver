@@ -1,29 +1,49 @@
 #!/bin/bash
 
-# TODO: Parameterize whether to run for Wordle or Wordmaster
-# TODO: Sort results by rounds needed
-# TODO: Save results to disk
+# TODO: Synchronize dictionary being used with program under test
 
 set -o nounset
 # set -o errexit
 set -o pipefail
+
+if [[ $# -gt 1 || $# -eq 1 && "$1" != "--wm" ]]; then
+   echo "Usage: $0 [--wm]"
+   echo "       --wm indicates the wordmaster dictionary should be used"
+   echo "       The Wordle dictionary will be used by default"
+   echo ""
+
+   exit 1;
+fi
+
+if [[ $# -eq 1 && "$1" == "--wm" ]]; then
+   declare -r DICTIONARY=wordmaster-answers-alphabetical.txt
+else
+   declare -r DICTIONARY=wordle-answers-alphabetical.txt
+fi
+
+declare -r RESULTS=results.txt
+declare -r RESULTS_SORTED=results_sorted.txt
+
+rm -f "$RESULTS"
 
 while read ONE_WORD
 do
    words $ONE_WORD > /dev/null
    ROUNDS=$?
 
-   echo -n $ONE_WORD
-   echo -n " "
+   echo -n $ONE_WORD | tee -a "$RESULTS"
+   echo -n " " | tee -a "$RESULTS"
 
    if [[ $ROUNDS == 254 ]]; then
-      echo FAILURE!!!
+      echo "FAILURE!!!" | tee -a "$RESULTS"
 
       exit 1
    fi
 
-   echo $ROUNDS;
-done < wordle-answers-alphabetical.txt
-# done < wordmaster-answers-alphabetical.txt
+   echo $ROUNDS | tee -a "$RESULTS"
+done < "$DICTIONARY"
+
+sort -n -r -k 2 "$RESULTS" > "$RESULTS_SORTED"
+rm -f "$RESULTS"
 
 exit 0
