@@ -158,8 +158,7 @@ void get_guess(
               )
 {
    static bool initialized {false};
-
-   regex word_regex;
+   static regex word_regex;
 
    if (! initialized)
    {
