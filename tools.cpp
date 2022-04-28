@@ -198,14 +198,20 @@ void get_guess(
 
       cout << "Possible answers remaining: " << answers_filtered.size() << endl;
 
-      cout << "Best guess by entropy over "
+      cout << "Best guesses by entropy over "
            << answers_filtered.size()
            << " remaining possible answers: "
-           << guess
-           << " ("
-           << entropies.cbegin()->first
-           << ")"
            << endl;
+
+      for (const auto &[entropy, word] : entropies)
+      {
+         cout  << "   "
+               << word
+               << " ("
+               << entropy
+               << ")"
+               << endl;
+      }
    }
    else
    {
