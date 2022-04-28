@@ -12,7 +12,7 @@ if [[ $# -gt 1 || $# -eq 1 && "$1" != "--wm" ]]; then
    echo "       The Wordle dictionary will be used by default"
    echo ""
 
-   exit 1;
+   exit 1
 fi
 
 if [[ $# -eq 1 && "$1" == "--wm" ]]; then
