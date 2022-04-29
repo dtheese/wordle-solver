@@ -28,7 +28,7 @@ rm -f "$RESULTS"
 
 while read ONE_WORD
 do
-   words $ONE_WORD > /dev/null
+   wordle-solver $ONE_WORD > /dev/null
    ROUNDS=$?
 
    echo -n $ONE_WORD | tee -a "$RESULTS"
