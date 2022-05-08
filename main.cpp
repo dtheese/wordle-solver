@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
    // Read these two lists of words from disk.
    load_words(all_words_unfiltered, answers_filtered);
 
-   // Ensure the target_word, if user-supplied, is in the list of allowed anwers
+   // Ensure the target_word, if user-supplied, is in the list of allowed answers
    if (target_word != "")
    {
       if (answers_filtered.find(target_word) == answers_filtered.cend())
