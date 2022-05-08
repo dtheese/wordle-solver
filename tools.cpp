@@ -164,7 +164,7 @@ void get_guess(
    {
       stringstream word_ss;
 
-      word_ss << "[a-z]{" << WORD_LENGTH << "}";
+      word_ss << "[a-z]{" << WORD_LENGTH << "}|^$";
       word_regex = word_ss.str();
 
       initialized = true;
@@ -257,12 +257,27 @@ void get_guess(
    {
       while (true)
       {
-         get_user_input("Word", word_regex, guess);
+         string user_guess;
 
-         if (all_words_unfiltered.find(guess) == all_words_unfiltered.cend())
+         get_user_input(
+                          "Word (<Enter> to accept suggested guess)",
+                          word_regex,
+                          user_guess
+                       );
+
+         if (user_guess == "")
+         {
+            cout << "Suggested guess accepted: " << guess << endl;
+            break;
+         }
+
+         if (all_words_unfiltered.find(user_guess) == all_words_unfiltered.cend())
             cout << "Not a valid guess!" << endl << endl;
          else
+         {
+            guess = user_guess;
             break;
+         }
       }
    }
 }
@@ -274,7 +289,7 @@ void get_user_input(const string &prompt, const regex &re, string &user_input)
       smatch m;
 
       cout << prompt << ": ";
-      cin >> user_input;
+      getline(cin, user_input);
 
       if (! regex_match(user_input, m, re))
       {
