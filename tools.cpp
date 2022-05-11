@@ -258,7 +258,7 @@ void get_guess(
    // This must be done after the code above so that the user knows
    // what the "best" word is so they can use it if they want to.
    //
-   // If MANUAL_MODE = false, just use the suggested guess automatically.
+   // If MANUAL_MODE == false, just use the suggested guess automatically.
    if constexpr (MANUAL_MODE)
    {
       while (true)
