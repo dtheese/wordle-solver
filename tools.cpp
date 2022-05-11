@@ -227,7 +227,7 @@ void get_guess(
       else
       {
          if (allowed_answers_filename == "wordle-answers-alphabetical.txt")
-            entropies.insert({0.5, "soare"});
+            entropies.insert({0.5, "salet"});
          else if (allowed_answers_filename == "wordmaster-answers-alphabetical.txt")
             entropies.insert({0.5, "tares"});
          else
