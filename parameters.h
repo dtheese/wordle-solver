@@ -23,6 +23,10 @@ constexpr my_uint_t THREADS_LIMIT{numeric_limits<my_uint_t>::max()};
 // Save filtered word lists to disk after each round
 constexpr bool DEBUG_MODE{false};
 
+// To save a few seconds at program start, a hard-coded first
+// guess can be used.
+constexpr bool USE_HARDCODED_FIRST_GUESS{true};
+
 const string allowed_guesses_filename{"wordle-allowed-guesses.txt"};
 const string allowed_answers_filename{"wordle-answers-alphabetical.txt"};
 // const string allowed_guesses_filename{"wordmaster-allowed-guesses.txt"};

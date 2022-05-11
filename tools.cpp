@@ -222,14 +222,20 @@ void get_guess(
       // entropy --> word(s) with that entropy
       entropy_words_map_t entropies;
 
-      if (round > 1)
+      if (round != 1 || ! USE_HARDCODED_FIRST_GUESS)
          calculate_entropies(all_words_unfiltered, answers_filtered, entropies);
       else
       {
          if (allowed_answers_filename == "wordle-answers-alphabetical.txt")
-            entropies.insert({0.5, "salet"});
+         {
+            // Best by looking at the first guess only
+            // entropies.insert({1.49413, "soare"});
+
+            // Best by looking at the first two guesses (i.e. two "ply")
+            entropies.insert({1.48496, "salet"});
+         }
          else if (allowed_answers_filename == "wordmaster-answers-alphabetical.txt")
-            entropies.insert({0.5, "tares"});
+            entropies.insert({1.91929, "tares"});
          else
             throw runtime_error("Unknown dictionary!");
       }
