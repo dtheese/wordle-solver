@@ -229,10 +229,10 @@ void get_guess(
          if (allowed_answers_filename == "wordle-answers-alphabetical.txt")
          {
             // Best by looking at the first guess only
-            // entropies.insert({1.49413, "soare"});
+            // entropies.insert({1.49060, "soare"});
 
             // Best by looking at the first two guesses (i.e. two "ply")
-            entropies.insert({1.48496, "salet"});
+            entropies.insert({1.48184, "salet"});
          }
          else if (allowed_answers_filename == "wordmaster-answers-alphabetical.txt")
             entropies.insert({1.91929, "tares"});
